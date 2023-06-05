@@ -52,8 +52,51 @@ macro_rules! gradient {
     };
 }
 
+fn draw_cell_label(
+    label1: &str,
+    label2: &str,
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+    font_size: f64,
+    hue: u32,
+) -> String {
+    let mut svg = String::new();
+
+    svg
+}
+
+fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
+    let mut svg = String::new();
+
+    svg += rect!(x, y, w, h, format!("url(#Gradient{hue})"), "class='solid'");
+    svg += rect!(
+        x,
+        y,
+        w,
+        h,
+        "none",
+        format!("stroke='hsl({hue}, 50%, 20%)' stroke-width='.001'")
+    );
+
+    svg
+}
+
 fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
     let mut svg = String::new();
+
+    let tooltip = "Name: build/main<br>Value: 40184";
+
+    svg += gradient!(format!("Gradient{hue}"), format!("hsl({hue}, 50%, 70%)"));
+    svg += f_as_str!(
+        "<g class='hover-element' data-tooltip='{tooltip}'
+        onclick='console.log(\"{tooltip}\")'>"
+    );
+
+    svg += &draw_cell_body(x, y, w, h, hue);
+    svg += &draw_cell_label(name, value, x, y, w, h, 0.03, hue);
+    svg += f_as_str!("</g>");
 
     svg
 }
