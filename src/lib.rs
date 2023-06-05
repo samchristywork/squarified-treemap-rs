@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::io::prelude::*;
+
 macro_rules! f_as_str {
     ($($arg:tt)*) => {
         format!($($arg)*).as_str()
@@ -47,4 +50,30 @@ macro_rules! gradient {
         )
         .as_str()
     };
+}
+
+fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
+    let mut svg = String::new();
+
+    svg
+}
+
+pub fn draw_treemap() {
+    let x = 0.;
+    let y = 0.;
+    let w = 1.;
+    let h = 0.6;
+
+    let mut svg = String::new();
+
+    svg += f_as_str!("<svg viewBox='{x} {y} {w} {h}' xmlns='http://www.w3.org/2000/svg'>");
+    svg += rect!(x, y, w, h, "pink", "");
+
+    svg += &draw_cell("build/main", "40185", 0.1, 0.1, 0.2, 0.2, 0);
+
+    svg += f_as_str!("</svg>");
+
+    let mut file = File::create("treemap.svg").unwrap();
+    file.write_all(svg.as_bytes()).unwrap();
+    file.sync_all().unwrap();
 }
