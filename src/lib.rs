@@ -64,6 +64,57 @@ fn draw_cell_label(
 ) -> String {
     let mut svg = String::new();
 
+    let y = y + 0.5 * font_size / 2.;
+
+    let can_show_two = h > font_size * 2.;
+    let can_show_one = h > font_size;
+    let can_show_label1 = w > font_size * label1.len() as f64 / 2.;
+    let can_show_label2 = w > font_size * label2.len() as f64 / 2.;
+
+    if can_show_two && can_show_label1 && can_show_label2 {
+        svg += text!(
+            label1,
+            x + w / 2.,
+            y + h / 2. - font_size / 2.,
+            format!("hsl({hue}, 50%, 20%)"),
+            format!("font-size='{font_size}' text-anchor='middle'")
+        );
+
+        svg += text!(
+            label2,
+            x + w / 2.,
+            y + h / 2. + font_size / 2.,
+            format!("hsl({hue}, 50%, 20%)"),
+            format!("font-size='{font_size}' text-anchor='middle'")
+        );
+
+        return svg;
+    }
+
+    if can_show_one && can_show_label1 {
+        svg += text!(
+            label1,
+            x + w / 2.,
+            y + h / 2.,
+            format!("hsl({hue}, 50%, 20%)"),
+            format!("font-size='{font_size}' text-anchor='middle'")
+        );
+
+        return svg;
+    }
+
+    if can_show_one && can_show_label2 {
+        svg += text!(
+            label2,
+            x + w / 2.,
+            y + h / 2.,
+            format!("hsl({hue}, 50%, 20%)"),
+            format!("font-size='{font_size}' text-anchor='middle'")
+        );
+
+        return svg;
+    }
+
     svg
 }
 
