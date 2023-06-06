@@ -152,7 +152,7 @@ fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) 
     svg
 }
 
-pub fn draw_treemap() {
+pub fn draw_treemap(data: Vec<(&str, f64)>) {
     let x = 0.;
     let y = 0.;
     let w = 1.;
@@ -163,7 +163,14 @@ pub fn draw_treemap() {
     svg += f_as_str!("<svg viewBox='{x} {y} {w} {h}' xmlns='http://www.w3.org/2000/svg'>");
     svg += rect!(x, y, w, h, "pink", "");
 
-    svg += &draw_cell("build/main", "40185", 0.1, 0.1, 0.2, 0.2, 0);
+    for (i, (name, value)) in data.iter().enumerate() {
+        let w = w / data.len() as f64;
+        let h = h;
+        let x = x + w * i as f64;
+        let y = 0.0;
+
+        svg += &draw_cell(name, &value.to_string(), x, y, w, h, 0);
+    }
 
     svg += f_as_str!("</svg>");
 
@@ -178,6 +185,15 @@ mod tests {
 
     #[test]
     fn todo() {
-        draw_treemap();
+        let data = vec![
+            ("foo", 6.),
+            ("bar", 6.),
+            ("baz", 4.),
+            ("qux", 3.),
+            ("quux", 2.),
+            ("quuz", 2.),
+            ("corge", 1.),
+        ];
+        draw_treemap(data);
     }
 }
