@@ -171,3 +171,13 @@ pub fn draw_treemap() {
     file.write_all(svg.as_bytes()).unwrap();
     file.sync_all().unwrap();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn todo() {
+        draw_treemap();
+    }
+}
