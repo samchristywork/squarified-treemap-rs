@@ -163,13 +163,17 @@ pub fn draw_treemap(data: Vec<(&str, f64)>) {
     svg += f_as_str!("<svg viewBox='{x} {y} {w} {h}' xmlns='http://www.w3.org/2000/svg'>");
     svg += rect!(x, y, w, h, "pink", "");
 
-    for (i, (name, value)) in data.iter().enumerate() {
-        let w = w / data.len() as f64;
+    let sum: f64 = data.iter().map(|(_, value)| value).sum();
+
+    let mut x = x;
+    for (name, value) in data.iter() {
+        let w = w * value / sum;
         let h = h;
-        let x = x + w * i as f64;
         let y = 0.0;
 
         svg += &draw_cell(name, &value.to_string(), x, y, w, h, 0);
+
+        x += w;
     }
 
     svg += f_as_str!("</svg>");
