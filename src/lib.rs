@@ -152,6 +152,18 @@ fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) 
     svg
 }
 
+fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) -> String {
+    let mut svg = String::new();
+
+    let data_sum: f64 = data.iter().map(|(_, value)| value).sum();
+
+    if w > h {
+    } else {
+    }
+
+    svg
+}
+
 pub fn draw_treemap(data: Vec<(&str, f64)>) {
     let x = 0.;
     let y = 0.;
@@ -162,6 +174,17 @@ pub fn draw_treemap(data: Vec<(&str, f64)>) {
 
     svg += f_as_str!("<svg viewBox='{x} {y} {w} {h}' xmlns='http://www.w3.org/2000/svg'>");
     svg += rect!(x, y, w, h, "pink", "");
+
+    let mut data = data;
+
+    svg += &squarified_treemap(data, x, y, w, h);
+
+    svg += f_as_str!("</svg>");
+
+    let mut file = File::create("treemap.svg").unwrap();
+    file.write_all(svg.as_bytes()).unwrap();
+    file.sync_all().unwrap();
+}
 
     let sum: f64 = data.iter().map(|(_, value)| value).sum();
 
@@ -176,11 +199,6 @@ pub fn draw_treemap(data: Vec<(&str, f64)>) {
         x += w;
     }
 
-    svg += f_as_str!("</svg>");
-
-    let mut file = File::create("treemap.svg").unwrap();
-    file.write_all(svg.as_bytes()).unwrap();
-    file.sync_all().unwrap();
 }
 
 #[cfg(test)]
