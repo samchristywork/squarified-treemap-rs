@@ -160,6 +160,25 @@ fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: i32) 
     svg
 }
 
+fn naive(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) -> String {
+    let mut svg = String::new();
+
+    let sum: f64 = data.iter().map(|(_, value)| value).sum();
+
+    let mut x = x;
+    for (name, value) in data.iter() {
+        let w = w * value / sum;
+        let h = h;
+        let y = 0.0;
+
+        svg += &draw_cell(name, &value.to_string(), x, y, w, h, 0);
+
+        x += w;
+    }
+
+    svg
+}
+
 fn aspect(w: f64, h: f64) -> f64 {
     if w > h {
         h / w
