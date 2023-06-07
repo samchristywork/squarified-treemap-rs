@@ -232,6 +232,12 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
                 continue;
             }
 
+            if node.children.len() == 0 {
+                svg += &draw_cell(&node.name, &node.value.to_string(), r.0, r.1, r.2, r.3, newhue);
+                r1.1 += r.3;
+                continue;
+            }
+
             svg += &squarified_treemap(&Tree {
                 name: node.name.to_string(),
                 value: node.value,
@@ -282,6 +288,12 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
             let r = (r1.0, r1.1, r1.2 * ratio, r1.3);
 
             if node.value == 0. {
+                continue;
+            }
+
+            if node.children.len() == 0 {
+                svg += &draw_cell(&node.name, &node.value.to_string(), r.0, r.1, r.2, r.3, newhue);
+                r1.0 += r.2;
                 continue;
             }
 
