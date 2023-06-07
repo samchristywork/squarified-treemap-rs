@@ -201,6 +201,10 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
             svg += &draw_cell(name, &value.to_string(), r.0, r.1, r.2, r.3, 0);
             r1.1 += r.3;
         }
+
+        if best_n < data.len() {
+            svg += &squarified_treemap(data[best_n..].to_vec(), r2.0, r2.1, r2.2, r2.3);
+        }
     } else {
         let mut best_ratio = 0.;
         let mut best_n = 1;
@@ -236,6 +240,10 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
 
             svg += &draw_cell(name, &value.to_string(), r.0, r.1, r.2, r.3, 0);
             r1.0 += r.2;
+        }
+
+        if best_n < data.len() {
+            svg += &squarified_treemap(data[best_n..].to_vec(), r2.0, r2.1, r2.2, r2.3);
         }
     }
 
