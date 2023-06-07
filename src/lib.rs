@@ -186,36 +186,20 @@ pub fn draw_treemap(data: Vec<(&str, f64)>) {
     file.sync_all().unwrap();
 }
 
-    let sum: f64 = data.iter().map(|(_, value)| value).sum();
-
-    let mut x = x;
-    for (name, value) in data.iter() {
-        let w = w * value / sum;
-        let h = h;
-        let y = 0.0;
-
-        svg += &draw_cell(name, &value.to_string(), x, y, w, h, 0);
-
-        x += w;
-    }
-
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn todo() {
-        let data = vec![
-            ("foo", 6.),
-            ("bar", 6.),
-            ("baz", 4.),
-            ("qux", 3.),
-            ("quux", 2.),
-            ("quuz", 2.),
-            ("corge", 1.),
+
+        let mut data = vec![
         ];
+
+        for i in 0..100 {
+            data.push(("hi", i as f64));
+        }
+
         draw_treemap(data);
     }
 }
