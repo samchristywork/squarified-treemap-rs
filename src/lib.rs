@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use rand::prelude::*;
 
 macro_rules! f_as_str {
     ($($arg:tt)*) => {
@@ -60,7 +61,7 @@ fn draw_cell_label(
     w: f64,
     h: f64,
     font_size: f64,
-    hue: u32,
+    hue: i32,
 ) -> String {
     let mut svg = String::new();
 
@@ -118,7 +119,7 @@ fn draw_cell_label(
     svg
 }
 
-fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
+fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
     let mut svg = String::new();
 
     svg += rect!(x, y, w, h, format!("url(#Gradient{hue})"), "class='solid'");
@@ -134,7 +135,7 @@ fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
     svg
 }
 
-fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) -> String {
+fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
     let mut svg = String::new();
 
     let tooltip = "Name: build/main<br>Value: 40184";
@@ -164,6 +165,7 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
     let mut svg = String::new();
 
     let data_sum: f64 = data.iter().map(|(_, value)| value).sum();
+    let mut newhue = hue;
 
     if w > h {
         let mut best_ratio = 0.;
@@ -190,8 +192,10 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
         let mut r1 = (x, y, w*best_slice_sum/data_sum, h);
         let r2 = (x + w*best_slice_sum/data_sum, y, w - w*best_slice_sum/data_sum, h);
 
-        for (name, value) in data[0..best_n].iter() {
             let ratio = value / best_slice_sum;
+            if hue==-1 {
+                newhue=rand::random::<i32>()%360;
+            }
             let r = (r1.0, r1.1, r1.2, r1.3 * ratio);
 
             if value == &0. {
@@ -230,8 +234,12 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
         let mut r1 = (x, y, w, h*best_slice_sum/data_sum);
         let r2 = (x, y + h*best_slice_sum/data_sum, w, h - h*best_slice_sum/data_sum);
 
-        for (name, value) in data[0..best_n].iter() {
             let ratio = value / best_slice_sum;
+        for node in tree.children[0..best_n].iter() {
+
+            if hue==-1 {
+                newhue=rand::random::<i32>()%360;
+            }
             let r = (r1.0, r1.1, r1.2 * ratio, r1.3);
 
             if value == &0. {
