@@ -317,7 +317,15 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
     svg
 }
 
-pub fn draw_treemap(data: Vec<(&str, f64)>) {
+fn squarified_treemap_wrapper(tree: &Tree, x: f64, y: f64, w: f64, h: f64) -> String {
+    let mut svg = String::new();
+
+    svg += &squarified_treemap(tree, x, y, w, h, -1);
+
+    svg
+}
+
+pub fn draw_treemap(tree: &Tree) {
     let x = 0.;
     let y = 0.;
     let w = 1.;
@@ -330,7 +338,7 @@ pub fn draw_treemap(data: Vec<(&str, f64)>) {
 
     let tree = sort_tree(tree);
 
-    svg += &squarified_treemap(&tree, x, y, w, h);
+    svg += &squarified_treemap_wrapper(&tree, x, y, w, h);
 
     svg += f_as_str!("</svg>");
 
