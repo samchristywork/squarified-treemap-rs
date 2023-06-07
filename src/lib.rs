@@ -158,7 +158,47 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
     let data_sum: f64 = data.iter().map(|(_, value)| value).sum();
 
     if w > h {
+        let mut best_ratio = 0.;
+        let mut best_n = 1;
+        let mut best_slice_sum = 0.;
+
+        for n in 1..=data.len() {
+            let slice_sum: f64 = data[0..n].iter().map(|(_, value)| value).sum();
+
+            let mut average_normalized_ratio = 0.;
+            for (name, value) in data[0..n].iter() {
+                average_normalized_ratio += aspect(w*slice_sum/data_sum,
+                    h*value/slice_sum);
+            }
+            average_normalized_ratio /= n as f64;
+
+            if average_normalized_ratio > best_ratio {
+                best_ratio = average_normalized_ratio;
+                best_n = n;
+                best_slice_sum = slice_sum;
+            }
+        }
     } else {
+        let mut best_ratio = 0.;
+        let mut best_n = 1;
+        let mut best_slice_sum = 0.;
+
+        for n in 1..=data.len() {
+            let slice_sum: f64 = data[0..n].iter().map(|(_, value)| value).sum();
+
+            let mut average_normalized_ratio = 0.;
+            for (name, value) in data[0..n].iter() {
+                average_normalized_ratio += aspect(w*value/slice_sum,
+                    h*slice_sum/data_sum);
+            }
+            average_normalized_ratio /= n as f64;
+
+            if average_normalized_ratio > best_ratio {
+                best_ratio = average_normalized_ratio;
+                best_n = n;
+                best_slice_sum = slice_sum;
+            }
+        }
     }
 
     svg
