@@ -145,7 +145,7 @@ fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
 fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
     let mut svg = String::new();
 
-    let tooltip = "Name: build/main<br>Value: 40184";
+    let tooltip = format!("Name: {name}<br>Value: {value}");
 
     svg += gradient!(format!("Gradient{hue}"), format!("hsl({hue}, 50%, 70%)"));
     svg += f_as_str!(
