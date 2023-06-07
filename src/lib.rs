@@ -152,6 +152,14 @@ fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: u32) 
     svg
 }
 
+fn aspect(w: f64, h: f64) -> f64 {
+    if w > h {
+        h / w
+    } else {
+        w / h
+    }
+}
+
 fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) -> String {
     let mut svg = String::new();
 
@@ -178,6 +186,21 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
                 best_slice_sum = slice_sum;
             }
         }
+
+        let mut r1 = (x, y, w*best_slice_sum/data_sum, h);
+        let r2 = (x + w*best_slice_sum/data_sum, y, w - w*best_slice_sum/data_sum, h);
+
+        for (name, value) in data[0..best_n].iter() {
+            let ratio = value / best_slice_sum;
+            let r = (r1.0, r1.1, r1.2, r1.3 * ratio);
+
+            if value == &0. {
+                continue;
+            }
+
+            svg += &draw_cell(name, &value.to_string(), r.0, r.1, r.2, r.3, 0);
+            r1.1 += r.3;
+        }
     } else {
         let mut best_ratio = 0.;
         let mut best_n = 1;
@@ -198,6 +221,21 @@ fn squarified_treemap(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) ->
                 best_n = n;
                 best_slice_sum = slice_sum;
             }
+        }
+
+        let mut r1 = (x, y, w, h*best_slice_sum/data_sum);
+        let r2 = (x, y + h*best_slice_sum/data_sum, w, h - h*best_slice_sum/data_sum);
+
+        for (name, value) in data[0..best_n].iter() {
+            let ratio = value / best_slice_sum;
+            let r = (r1.0, r1.1, r1.2 * ratio, r1.3);
+
+            if value == &0. {
+                continue;
+            }
+
+            svg += &draw_cell(name, &value.to_string(), r.0, r.1, r.2, r.3, 0);
+            r1.0 += r.2;
         }
     }
 
