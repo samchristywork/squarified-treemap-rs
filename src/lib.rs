@@ -1,163 +1,16 @@
-use rand::prelude::*;
+mod render;
+mod util;
+
+use crate::render::draw_cell;
 use std::fs::File;
 use std::io::prelude::*;
 
-macro_rules! f_as_str {
-    ($($arg:tt)*) => {
-        format!($($arg)*).as_str()
-    };
-}
-
-macro_rules! rect {
-    ($x:expr, $y:expr, $w:expr, $h:expr, $fill:expr, $extra:expr) => {
-        format!(
-            "<rect x='{x}' y='{y}' width='{w}' height='{h}' fill='{fill}' {extra} />",
-            x = $x,
-            y = $y,
-            w = $w,
-            h = $h,
-            fill = $fill,
-            extra = $extra
-        )
-        .as_str()
-    };
-}
-
-macro_rules! text {
-    ($text:expr, $x:expr, $y:expr, $fill:expr, $extra:expr) => {
-        format!(
-            "<text x='{x}' y='{y}' fill='{fill}' {extra}>{text}</text>",
-            x = $x,
-            y = $y,
-            fill = $fill,
-            extra = $extra,
-            text = $text
-        )
-        .as_str()
-    };
-}
-
-macro_rules! gradient {
-    ($id:expr, $color:expr) => {
-        format!(
-            "<defs>
-           <linearGradient id='{id}' x1='0' x2='1' y1='0' y2='1'>
-              <stop offset='0%' stop-color='white'/>
-              <stop offset='100%' stop-color='{color}'/>
-           </linearGradient>
-        </defs>",
-            id = $id,
-            color = $color
-        )
-        .as_str()
-    };
-}
 
 #[derive(Clone, Debug)]
 pub struct Tree {
     name: String,
     value: f64,
     children: Vec<Tree>,
-}
-
-fn draw_cell_label(
-    label1: &str,
-    label2: &str,
-    x: f64,
-    y: f64,
-    w: f64,
-    h: f64,
-    font_size: f64,
-    hue: i32,
-) -> String {
-    let mut svg = String::new();
-
-    let y = y + 0.5 * font_size / 2.;
-
-    let can_show_two = h > font_size * 2.;
-    let can_show_one = h > font_size;
-    let can_show_label1 = w > font_size * label1.len() as f64 / 2.;
-    let can_show_label2 = w > font_size * label2.len() as f64 / 2.;
-
-    if can_show_two && can_show_label1 && can_show_label2 {
-        svg += text!(
-            label1,
-            x + w / 2.,
-            y + h / 2. - font_size / 2.,
-            format!("hsl({hue}, 50%, 20%)"),
-            format!("font-size='{font_size}' text-anchor='middle'")
-        );
-
-        svg += text!(
-            label2,
-            x + w / 2.,
-            y + h / 2. + font_size / 2.,
-            format!("hsl({hue}, 50%, 20%)"),
-            format!("font-size='{font_size}' text-anchor='middle'")
-        );
-
-        return svg;
-    }
-
-    if can_show_one && can_show_label1 {
-        svg += text!(
-            label1,
-            x + w / 2.,
-            y + h / 2.,
-            format!("hsl({hue}, 50%, 20%)"),
-            format!("font-size='{font_size}' text-anchor='middle'")
-        );
-
-        return svg;
-    }
-
-    if can_show_one && can_show_label2 {
-        svg += text!(
-            label2,
-            x + w / 2.,
-            y + h / 2.,
-            format!("hsl({hue}, 50%, 20%)"),
-            format!("font-size='{font_size}' text-anchor='middle'")
-        );
-
-        return svg;
-    }
-
-    svg
-}
-
-fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
-    let mut svg = String::new();
-
-    svg += rect!(x, y, w, h, format!("url(#Gradient{hue})"), "class='solid'");
-    svg += rect!(
-        x,
-        y,
-        w,
-        h,
-        "none",
-        format!("stroke='hsl({hue}, 50%, 20%)' stroke-width='.001'")
-    );
-
-    svg
-}
-
-fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
-    let mut svg = String::new();
-
-    let tooltip = format!("Name: {name}<br>Value: {value}");
-
-    svg += gradient!(format!("Gradient{hue}"), format!("hsl({hue}, 50%, 70%)"));
-    svg += f_as_str!(
-        "<g class='hover-element' data-tooltip='{tooltip}'
-        onclick='console.log(\"{tooltip}\")'>"
-    );
-
-    svg += &draw_cell_body(x, y, w, h, hue);
-    svg += &draw_cell_label(name, value, x, y, w, h, 0.03, hue);
-    svg += f_as_str!("</g>");
-
-    svg
 }
 
 fn naive(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) -> String {
@@ -432,7 +285,7 @@ mod tests {
             };
 
             let mut sum = 0.;
-            for i in 0..10 {
+            for _ in 0..10 {
                 let value = rand::random::<u32>() % 100 + 10;
 
                 let faz = Tree {
