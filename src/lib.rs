@@ -317,6 +317,18 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
     svg
 }
 
+fn sort_tree(tree: &Tree) -> Tree {
+    let mut tree = tree.clone();
+
+    tree.children.sort_by(|a, b| b.value.partial_cmp(&a.value).unwrap());
+
+    for child in tree.children.iter_mut() {
+        *child = sort_tree(child);
+    }
+
+    tree
+}
+
 fn squarified_treemap_wrapper(tree: &Tree, x: f64, y: f64, w: f64, h: f64) -> String {
     let mut svg = String::new();
 
