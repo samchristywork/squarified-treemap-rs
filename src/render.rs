@@ -2,6 +2,7 @@ use crate::f_as_str;
 use crate::gradient;
 use crate::rect;
 use crate::text;
+use crate::Rect;
 
 fn draw_cell_label(
     label1: &str,
@@ -85,7 +86,12 @@ fn draw_cell_body(x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
     svg
 }
 
-pub fn draw_cell(name: &str, value: &str, x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
+pub fn draw_cell(name: &str, value: &str, viewport: &Rect, hue: i32) -> String {
+    let x = viewport.x;
+    let y = viewport.y;
+    let w = viewport.w;
+    let h = viewport.h;
+
     let mut svg = String::new();
 
     let tooltip = format!("Name: {name}<br>Value: {value}");

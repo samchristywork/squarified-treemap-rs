@@ -13,23 +13,12 @@ pub struct Tree {
     children: Vec<Tree>,
 }
 
-fn naive(data: Vec<(&str, f64)>, x: f64, y: f64, w: f64, h: f64) -> String {
-    let mut svg = String::new();
-
-    let sum: f64 = data.iter().map(|(_, value)| value).sum();
-
-    let mut x = x;
-    for (name, value) in data.iter() {
-        let w = w * value / sum;
-        let h = h;
-        let y = 0.0;
-
-        svg += &draw_cell(name, &value.to_string(), x, y, w, h, 0);
-
-        x += w;
-    }
-
-    svg
+#[derive(Clone, Debug)]
+pub struct Rect {
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
 }
 
 fn aspect(w: f64, h: f64) -> f64 {
@@ -40,12 +29,15 @@ fn aspect(w: f64, h: f64) -> f64 {
     }
 }
 
-fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> String {
+fn squarified_treemap(tree: &Tree, viewport: &Rect, hue: i32) -> String {
     let mut svg = String::new();
-
     let mut newhue = hue;
-
     let tree_sum: f64 = tree.children.iter().map(|child| child.value).sum();
+
+    let x = viewport.x;
+    let y = viewport.y;
+    let w = viewport.w;
+    let h = viewport.h;
 
     if w > h {
         let mut best_ratio = 0.;
@@ -69,13 +61,18 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
             }
         }
 
-        let mut r1 = (x, y, w * best_slice_sum / tree_sum, h);
-        let r2 = (
-            x + w * best_slice_sum / tree_sum,
+        let mut r1 = Rect {
+            x,
             y,
-            w - w * best_slice_sum / tree_sum,
+            w: w * best_slice_sum / tree_sum,
             h,
-        );
+        };
+        let r2 = Rect {
+            x: x + w * best_slice_sum / tree_sum,
+            y,
+            w: w - w * best_slice_sum / tree_sum,
+            h,
+        };
 
         for node in tree.children[0..best_n].iter() {
             if hue == -1 {
@@ -83,23 +80,20 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
             }
 
             let ratio = node.value / best_slice_sum;
-            let r = (r1.0, r1.1, r1.2, r1.3 * ratio);
+            let r = Rect {
+                x: r1.x,
+                y: r1.y,
+                w: r1.w,
+                h: r1.h * ratio,
+            };
 
             if node.value == 0. {
                 continue;
             }
 
             if node.children.len() == 0 {
-                svg += &draw_cell(
-                    &node.name,
-                    &node.value.to_string(),
-                    r.0,
-                    r.1,
-                    r.2,
-                    r.3,
-                    newhue,
-                );
-                r1.1 += r.3;
+                svg += &draw_cell(&node.name, &node.value.to_string(), &r, newhue);
+                r1.y += r.h;
                 continue;
             }
 
@@ -109,13 +103,10 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
                     value: node.value,
                     children: node.children.clone(),
                 },
-                r.0,
-                r.1,
-                r.2,
-                r.3,
+                &r,
                 newhue,
             );
-            r1.1 += r.3;
+            r1.y += r.h;
         }
 
         if best_n < tree.children.len() {
@@ -125,10 +116,7 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
                     value: tree.value,
                     children: tree.children[best_n..].to_vec(),
                 },
-                r2.0,
-                r2.1,
-                r2.2,
-                r2.3,
+                &r2,
                 hue,
             );
         }
@@ -154,13 +142,18 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
             }
         }
 
-        let mut r1 = (x, y, w, h * best_slice_sum / tree_sum);
-        let r2 = (
+        let mut r1 = Rect {
             x,
-            y + h * best_slice_sum / tree_sum,
+            y,
             w,
-            h - h * best_slice_sum / tree_sum,
-        );
+            h: h * best_slice_sum / tree_sum,
+        };
+        let r2 = Rect {
+            x,
+            y: y + h * best_slice_sum / tree_sum,
+            w,
+            h: h - h * best_slice_sum / tree_sum,
+        };
 
         for node in tree.children[0..best_n].iter() {
             if hue == -1 {
@@ -168,23 +161,20 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
             }
 
             let ratio = node.value / best_slice_sum;
-            let r = (r1.0, r1.1, r1.2 * ratio, r1.3);
+            let r = Rect {
+                x: r1.x,
+                y: r1.y,
+                w: r1.w * ratio,
+                h: r1.h,
+            };
 
             if node.value == 0. {
                 continue;
             }
 
             if node.children.len() == 0 {
-                svg += &draw_cell(
-                    &node.name,
-                    &node.value.to_string(),
-                    r.0,
-                    r.1,
-                    r.2,
-                    r.3,
-                    newhue,
-                );
-                r1.0 += r.2;
+                svg += &draw_cell(&node.name, &node.value.to_string(), &r, newhue);
+                r1.x += r.w;
                 continue;
             }
 
@@ -194,13 +184,10 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
                     value: node.value,
                     children: node.children.clone(),
                 },
-                r.0,
-                r.1,
-                r.2,
-                r.3,
+                &r,
                 newhue,
             );
-            r1.0 += r.2;
+            r1.x += r.w;
         }
 
         if best_n < tree.children.len() {
@@ -210,10 +197,7 @@ fn squarified_treemap(tree: &Tree, x: f64, y: f64, w: f64, h: f64, hue: i32) -> 
                     value: tree.value,
                     children: tree.children[best_n..].to_vec(),
                 },
-                r2.0,
-                r2.1,
-                r2.2,
-                r2.3,
+                &r2,
                 hue,
             );
         }
@@ -235,28 +219,36 @@ fn sort_tree(tree: &Tree) -> Tree {
     tree
 }
 
-fn squarified_treemap_wrapper(tree: &Tree, x: f64, y: f64, w: f64, h: f64) -> String {
+fn squarified_treemap_wrapper(tree: &Tree, viewport: Rect) -> String {
     let mut svg = String::new();
 
-    svg += &squarified_treemap(tree, x, y, w, h, -1);
+    svg += &squarified_treemap(tree, &viewport, -1);
 
     svg
 }
 
 pub fn draw_treemap(tree: &Tree) {
-    let x = 0.;
-    let y = 0.;
-    let w = 1.;
-    let h = 0.6;
+    let viewport = Rect {
+        x: 0.,
+        y: 0.,
+        w: 1.,
+        h: 0.6,
+    };
 
     let mut svg = String::new();
 
-    svg += f_as_str!("<svg viewBox='{x} {y} {w} {h}' xmlns='http://www.w3.org/2000/svg'>");
-    svg += rect!(x, y, w, h, "pink", "");
+    svg += f_as_str!(
+        "<svg viewBox='{} {} {} {}' xmlns='http://www.w3.org/2000/svg'>",
+        viewport.x,
+        viewport.y,
+        viewport.w,
+        viewport.h
+    );
+    svg += rect!(viewport.x, viewport.y, viewport.w, viewport.h, "pink", "");
 
     let tree = sort_tree(tree);
 
-    svg += &squarified_treemap_wrapper(&tree, x, y, w, h);
+    svg += &squarified_treemap_wrapper(&tree, viewport);
 
     svg += f_as_str!("</svg>");
 
