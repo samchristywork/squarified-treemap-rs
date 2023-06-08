@@ -222,7 +222,9 @@ fn sort_tree(tree: &Tree) -> Tree {
 fn squarified_treemap_wrapper(tree: &Tree, viewport: Rect) -> String {
     let mut svg = String::new();
 
-    svg += &squarified_treemap(tree, &viewport, -1);
+    let tree = sort_tree(tree);
+
+    svg += &squarified_treemap(&tree, &viewport, -1);
 
     svg
 }
@@ -245,8 +247,6 @@ pub fn draw_treemap(tree: &Tree) {
         viewport.h
     );
     svg += rect!(viewport.x, viewport.y, viewport.w, viewport.h, "pink", "");
-
-    let tree = sort_tree(tree);
 
     svg += &squarified_treemap_wrapper(&tree, viewport);
 
