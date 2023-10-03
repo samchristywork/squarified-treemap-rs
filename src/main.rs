@@ -32,7 +32,10 @@ fn main() {
         tree.children.push(node);
     }
 
-    println!("{:#?}", tree);
+    //println!("{:#?}", tree);
 
-    draw_treemap(&tree);
+    let s = draw_treemap(&tree);
+    println!("<!DOCTYPE html>");
+    println!("{}", s);
+    println!("</html>");
 }

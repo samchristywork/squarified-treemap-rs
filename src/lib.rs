@@ -3,8 +3,6 @@ mod treemap;
 mod util;
 
 use crate::treemap::squarified_treemap;
-use std::fs::File;
-use std::io::prelude::*;
 
 
 #[derive(Clone, Debug)]
@@ -22,7 +20,7 @@ pub struct Rect {
     h: f64,
 }
 
-pub fn draw_treemap(tree: &Tree) {
+pub fn draw_treemap(tree: &Tree) -> String {
     let viewport = Rect {
         x: 0.,
         y: 0.,
@@ -45,9 +43,7 @@ pub fn draw_treemap(tree: &Tree) {
 
     svg += f_as_str!("</svg>");
 
-    let mut file = File::create("treemap.svg").unwrap();
-    file.write_all(svg.as_bytes()).unwrap();
-    file.sync_all().unwrap();
+    svg
 }
 
 #[cfg(test)]
