@@ -35,7 +35,7 @@ fn main() {
             let value = line.parse::<f64>().unwrap();
 
             let faz = Tree {
-                name: line,
+                name: node.name.clone(),
                 value: value,
                 children: vec![],
             };
