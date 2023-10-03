@@ -1,5 +1,11 @@
 use squarified_treemap_rs::*;
 
+fn read_line() -> String {
+    let mut s = String::new();
+    std::io::stdin().read_line(&mut s).unwrap();
+    s.trim().to_string()
+}
+
 fn main() {
     let mut tree = Tree {
         name: "root".to_string(),
@@ -7,20 +13,30 @@ fn main() {
         children: vec![],
     };
 
-    for _ in 0..10 {
+    loop {
+        let line = read_line();
+        if line == "" {
+            break;
+        }
+
         let mut node = Tree {
-            name: "foo".to_string(),
+            name: line,
             value: 0.,
             children: vec![],
         };
 
         let mut sum = 0.;
-        for _ in 0..10 {
-            let value = rand::random::<u32>() % 100 + 10;
+        loop {
+            let line = read_line();
+            if line == "" {
+                break;
+            }
+
+            let value = line.parse::<f64>().unwrap();
 
             let faz = Tree {
-                name: "bar".to_string(),
-                value: value as f64,
+                name: line,
+                value: value,
                 children: vec![],
             };
             sum += faz.value;
@@ -31,8 +47,6 @@ fn main() {
 
         tree.children.push(node);
     }
-
-    //println!("{:#?}", tree);
 
     let s = draw_treemap(&tree);
     println!("<!DOCTYPE html>");
