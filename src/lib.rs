@@ -9,9 +9,9 @@ use std::io::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct Tree {
-    name: String,
-    value: f64,
-    children: Vec<Tree>,
+    pub name: String,
+    pub value: f64,
+    pub children: Vec<Tree>,
 }
 
 #[derive(Clone, Debug)]
